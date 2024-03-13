@@ -1,45 +1,24 @@
 package momo.payment.service.services;
 
+import static momo.payment.service.repository.BillRepository.FILE_PATH;
+import static momo.payment.service.repository.BillRepository.bills;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import momo.payment.service.enums.BillState;
 import momo.payment.service.enums.BillType;
 import momo.payment.service.exception.BillNotFoundException;
 import momo.payment.service.model.Bill;
+import momo.payment.service.repository.BillRepository;
+import momo.payment.service.utils.ParseUtil;
 
 public class BillService {
-  public static Map<Integer, Bill> bills = new HashMap<>();
-  public static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-  static String FILE_PATH = "src/main/resources/bill.txt";
-
-  static {
-    try (Stream<String> lines = Files.lines(Paths.get(FILE_PATH))) {
-      lines.forEach(
-          line -> {
-            String[] values = line.split(":");
-            bills.put(
-                Integer.parseInt(values[0]),
-                new Bill(
-                    Integer.parseInt(values[0]),
-                    BillType.valueOf(values[1]),
-                    Integer.parseInt(values[2]),
-                    LocalDate.parse(values[3], DATE_TIME_FORMATTER),
-                    BillState.valueOf(values[4]),
-                    values[5]));
-          });
-    } catch (IOException e) {
-      System.out.println("ERROR");
-    }
-  }
 
   public void printAll(Map<Integer, Bill> bills) {
     if (bills.isEmpty()) {
@@ -73,7 +52,7 @@ public class BillService {
 
   public void searchByProvider(String provider) {
     Map<Integer, Bill> billsToPrint =
-        bills.entrySet().stream()
+            bills.entrySet().stream()
             .filter(entry -> entry.getValue().getProvider().equals(provider))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     printAll(billsToPrint);
@@ -83,12 +62,12 @@ public class BillService {
     if (bills.get(id) == null) {
       throw new BillNotFoundException();
     }
-    bills.get(id).setDueDate(LocalDate.parse(date, DATE_TIME_FORMATTER));
+    BillRepository.bills.get(id).setDueDate(ParseUtil.parseLocalDate(date));
     System.out.printf("Payment for bill id %s is scheduled on %s", id, date);
   }
 
   public void delete(int id) {
-    if (bills.get(id) == null) {
+    if (BillRepository.bills.get(id) == null) {
       throw new BillNotFoundException();
     }
     bills.remove(id);
@@ -103,6 +82,14 @@ public class BillService {
     System.out.printf("Payment for bill id %s has been deleted", id);
   }
 
+  public void dueDate() {
+    Map<Integer, Bill> billsToPrint =
+            bills.entrySet().stream()
+                    .filter(entry -> !entry.getValue().getDueDate().isBefore(LocalDate.now()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    printAll(billsToPrint);
+  }
+
   public void save() throws IOException {
     Path path = Paths.get(FILE_PATH);
     StringBuilder stringBuilder = new StringBuilder();
@@ -114,7 +101,7 @@ public class BillService {
                     bill.getId(),
                     bill.getType(),
                     bill.getAmount(),
-                    bill.getDueDate().format(DATE_TIME_FORMATTER),
+                    bill.getDueDate().format(ParseUtil.DATE_TIME_FORMATTER),
                     bill.getState(),
                     bill.getProvider())));
 

@@ -1,0 +1,13 @@
+plugins {
+    id 'java-library'
+    id 'java'
+    id 'idea'
+}
+
+allprojects {
+    apply plugin: 'java-library'
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}

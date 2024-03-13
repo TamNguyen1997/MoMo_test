@@ -7,23 +7,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
+import momo.payment.service.enums.BillState;
 import momo.payment.service.exception.BillNotFoundException;
 import momo.payment.service.exception.InsufficientBalanceException;
-import momo.payment.service.model.Bill;
 import momo.payment.service.model.User;
 
 public class UserService {
-  private User user;
-  private static final String FILE_PATH = "src/main/resources/user.txt";
-  
-  public UserService() {
+  public static final String FILE_PATH = "src/main/resources/user.txt";
+  static final User user = new User();
 
+  static  {
     try (Stream<String> lines = Files.lines(Paths.get(FILE_PATH))) {
-      this.user = new User(Integer.parseInt(lines.findFirst().orElseThrow()));
+      user.setBalance(Integer.parseInt(lines.findFirst().orElseThrow()));
     } catch (IOException e) {
       System.out.println("ERROR");
     }
-
   }
 
   public void cashIn(int balance) {
@@ -37,19 +35,20 @@ public class UserService {
   }
 
   public void save() throws IOException {
-    Files.write(Path.of(FILE_PATH), String.valueOf(this.user.getBalance()).getBytes());
+    Files.write(Path.of(FILE_PATH), String.valueOf(user.getBalance()).getBytes());
   }
   
   private void pay(int id) {
-    Bill bill = BillService.bills.get(id);
-    if (bill == null) {
+    if (BillService.bills.get(id) == null) {
       throw new BillNotFoundException();
     }
-    if (this.user.getBalance() < bill.getAmount()) {
+    if (user.getBalance() < BillService.bills.get(id).getAmount()) {
       throw new InsufficientBalanceException();
     }
-    this.user.setBalance(this.user.getBalance() - bill.getAmount());
-  } 
+    BillService.bills.get(id).setState(BillState.PAID);
+    user.setBalance(user.getBalance() - BillService.bills.get(id).getAmount());
+  }
+
   private void printBalance() {
     System.out.printf("Your current balance is: %s", user.getBalance());
   }

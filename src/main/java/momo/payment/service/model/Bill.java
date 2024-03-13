@@ -1,57 +1,60 @@
 package momo.payment.service.model;
 
+import java.time.LocalDate;
 import momo.payment.service.enums.BillState;
 import momo.payment.service.enums.BillType;
 
-import java.time.LocalDate;
-
 public class Bill {
-    private final int id;
-    private final BillType type;
-    private final int amount;
-    private LocalDate dueDate;
-    private BillState state;
-    private final String provider;
-    public Bill(int id, BillType type,
-                int amount, LocalDate  dueDate,
-                BillState state, String provider) {
-        this.id = id;
-        this.type = type;
-        this.amount = amount;
-        this.dueDate = dueDate;
-        this.state = state;
-        this.provider = provider;
-    }
+  private final int id;
+  private final BillType type;
+  private final int amount;
+  private String provider;
+  private LocalDate dueDate;
+  private BillState state;
 
-    public int getId() {
-        return this.id;
-    }
+  public Bill(
+      int id, BillType type, int amount, LocalDate dueDate, BillState state, String provider) {
+    this.id = id;
+    this.type = type;
+    this.amount = amount;
+    this.dueDate = dueDate;
+    this.state = state;
+    this.provider = provider;
+  }
 
-    public BillType getType() {
-        return this.type;
-    }
+  public int getId() {
+    return this.id;
+  }
 
-    public int getAmount() {
-        return this.amount;
-    }
+  public BillType getType() {
+    return this.type;
+  }
 
-    public LocalDate getDueDate() {
-        return this.dueDate;
-    }
+  public int getAmount() {
+    return this.amount;
+  }
 
-    public void setDueDate(LocalDate date) {
-        this.dueDate = date;
-    }
+  public LocalDate getDueDate() {
+    return this.dueDate;
+  }
 
-    public BillState getState() {
-        return this.state;
-    }
+  public void setDueDate(LocalDate date) {
+    this.dueDate = date;
+  }
 
-    public void setState(BillState state) {
-        this.state = state;
-    }
+  public BillState getState() {
+    return this.state;
+  }
 
-    public String getProvider() {
-        return this.provider;
-    }
+  public void setState(BillState state) {
+    this.state = state;
+  }
+
+  public String getProvider() {
+    return this.provider;
+  }
+
+  public void setProvider(String provider) {
+    this.provider = provider;
+  }
 }

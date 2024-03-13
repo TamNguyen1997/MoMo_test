@@ -1,13 +1,23 @@
 plugins {
     id 'java-library'
+    id 'groovy'
     id 'java'
     id 'idea'
+    id 'org.unbroken-dome.test-sets' version '4.1.0'
 }
 
 allprojects {
     apply plugin: 'java-library'
+
+    repositories {
+        mavenCentral()
+    }
 }
 
-tasks.withType(Test) {
+dependencies {
+    testImplementation(group: 'org.spockframework', name: 'spock-core', version: "2.4-M1-groovy-4.0")
+}
+
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }

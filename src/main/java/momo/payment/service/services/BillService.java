@@ -29,7 +29,7 @@ public class BillService {
     bills.forEach(
         (id, bill) ->
             System.out.printf(
-                "%s          %s        %s          %s         %s         %s",
+                "%s          %s        %s          %s         %s         %s" + System.lineSeparator(),
                 bill.getId(),
                 bill.getType(),
                 bill.getAmount(),
